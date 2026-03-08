@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta name="theme-color" content="#000000"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="PhotoEdit"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <link rel="icon" type="image/png" href="icon-192.png"/>
+  <title>PhotoEdit App</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── TOP BAR ── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo-mark"><img src="icon-192.png" alt=""/></div>
+      <span class="logo-text">PhotoEdit</span>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="newBtn" title="Ảnh mới">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── MAIN SCROLL AREA ── -->
+  <main id="mainScroll">
+
+    <!-- === UPLOAD SCREEN === -->
+    <div id="uploadScreen" class="screen active">
+      <div class="upload-hero">
+        <label class="upload-drop" id="uploadDrop">
+          <input type="file" id="fileInput" accept="image/*"/>
+          <div class="upload-drop-inner">
+            <div class="upload-anim">
+              <svg viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="30" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5"/>
+                <path d="M32 42V22M22 30l10-10 10 10" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2>Chọn ảnh để bắt đầu</h2>
+            <p>Nhấn hoặc kéo thả ảnh vào đây</p>
+            <span class="upload-badge">JPG · PNG · WEBP</span>
+          </div>
+        </label>
+      </div>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <span class="fi-icon">🖼️</span>
+          <div><strong>Chỉnh ảnh</strong><p>Sáng, tương phản, màu sắc</p></div>
+        </div>
+        <div class="feature-item">
+          <span class="fi-icon">✂️</span>
+          <div><strong>Xóa nền AI</strong><p>Offline, không upload server</p></div>
+        </div>
+        <div class="feature-item">
+          <span class="fi-icon">🌄</span>
+          <div><strong>Ghép nền</strong><p>Hàng trăm ảnh nền miễn phí</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === EDITOR SCREEN === -->
+    <div id="editorScreen" class="screen">
+
+      <!-- Image preview area -->
+      <div class="img-stage" id="imgStage">
+        <!-- Tab: Edit -->
+        <div class="stage-panel active" id="stageEdit">
+          <canvas id="editCanvas"></canvas>
+        </div>
+        <!-- Tab: Remove BG result -->
+        <div class="stage-panel" id="stageRemove">
+          <div class="checker-bg">
+            <img id="removedImg" alt=""/>
+          </div>
+        </div>
+        <!-- Tab: Composite -->
+        <div class="stage-panel" id="stageComposite">
+          <canvas id="compositeCanvas"></canvas>
+          <div class="drag-hint" id="dragHint">👆 Kéo để di chuyển chủ thể</div>
+        </div>
+
+        <!-- Mode pill buttons -->
+        <div class="stage-tabs">
+          <button class="stage-tab active" data-stage="edit">✏️ Chỉnh</button>
+          <button class="stage-tab" data-stage="remove">✂️ Xóa nền</button>
+          <button class="stage-tab" data-stage="composite">🌄 Ghép</button>
+        </div>
+      </div>
+
+      <!-- ─── PANEL: EDIT ─── -->
+      <div class="ctrl-panel active" id="panelEdit">
+        <div class="sliders-list">
+          <div class="slider-row">
+            <div class="sr-header"><span>☀️ Sáng</span><span class="sv" id="vBrightness">100</span></div>
+            <input type="range" id="sBrightness" min="0" max="200" value="100"/>
+          </div>
+          <div class="slider-row">
+            <div class="sr-header"><span>◑ Tương phản</span><span class="sv" id="vContrast">100</span></div>
+            <input type="range" id="sContrast" min="0" max="200" value="100"/>
+          </div>
+          <div class="slider-row">
+            <div class="sr-header"><span>🎨 Bão hòa</span><span class="sv" id="vSaturate">100</span></div>
+            <input type="range" id="sSaturate" min="0" max="300" value="100"/>
+          </div>
+          <div class="slider-row">
+            <div class="sr-header"><span>💧 Làm mờ</span><span class="sv" id="vBlur">0</span></div>
+            <input type="range" id="sBlur" min="0" max="10" value="0" step="0.5"/>
+          </div>
+          <div class="slider-row">
+            <div class="sr-header"><span>🌡️ Ấm/Lạnh</span><span class="sv" id="vWarm">0</span></div>
+            <input type="range" id="sWarm" min="-100" max="100" value="0"/>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" id="resetEditBtn">↺ Reset</button>
+          <button class="btn btn-primary" id="downloadEditBtn">⬇ Tải ảnh</button>
+        </div>
+      </div>
+
+      <!-- ─── PANEL: REMOVE BG ─── -->
+      <div class="ctrl-panel" id="panelRemove">
+        <div class="info-box">
+          <span>🤖</span>
+          <div>AI xóa nền (TensorFlow BodyPix) · model ~13MB · <b>ảnh không rời thiết bị</b></div>
+        </div>
+
+        <div id="removeProgressWrap" style="display:none">
+          <div class="prog-bar-wrap"><div class="prog-bar" id="progressBar"></div></div>
+          <p class="prog-label" id="progressLabel">Đang xử lý...</p>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-danger" id="removeBgBtn">✂️ Xóa nền ngay</button>
+        </div>
+        <div class="btn-row" id="removeResultBtns" style="display:none">
+          <button class="btn btn-secondary" id="downloadRemovedBtn">⬇ Tải PNG</button>
+          <button class="btn btn-success" id="useForCompositeBtn">🌄 Ghép nền</button>
+        </div>
+      </div>
+
+      <!-- ─── PANEL: COMPOSITE ─── -->
+      <div class="ctrl-panel" id="panelComposite">
+        <!-- Scale -->
+        <div class="slider-row" id="scaleRowWrap" style="display:none">
+          <div class="sr-header"><span>📐 Kích thước chủ thể</span><span class="sv" id="vScale">100%</span></div>
+          <input type="range" id="sScale" min="10" max="200" value="100"/>
+        </div>
+
+        <!-- BG category -->
+        <div class="chip-row" id="bgChips">
+          <button class="chip active" data-cat="nature">🌿 Thiên nhiên</button>
+          <button class="chip" data-cat="city">🏙️ Thành phố</button>
+          <button class="chip" data-cat="abstract">🎨 Trừu tượng</button>
+          <button class="chip" data-cat="beach">🏖️ Bãi biển</button>
+          <button class="chip" data-cat="mountain">⛰️ Núi</button>
+        </div>
+
+        <div class="bg-grid" id="bgGrid"></div>
+        <div id="bgLoadMore" style="height:50px"></div>
+
+        <div class="btn-row" id="compositeDownloadRow" style="display:none">
+          <button class="btn btn-primary" id="downloadCompositeBtn" style="width:100%">⬇ Tải ảnh đã ghép</button>
+        </div>
+      </div>
+
+    </div><!-- /editorScreen -->
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- PWA Banner -->
+<div class="pwa-banner" id="pwaBanner" hidden>
+  <img src="icon-192.png" alt="" width="36" height="36"/>
+  <div class="pwa-text"><strong>PhotoEdit App</strong><span>Cài như ứng dụng thật</span></div>
+  <button class="btn btn-primary btn-sm" id="pwaInstallBtn">Cài</button>
+  <button class="pwa-x" id="pwaDismissBtn">✕</button>
+</div>
+
+<!-- Open-in-browser overlay -->
+<div class="oib-overlay" id="oibOverlay" hidden>
+  <div class="oib-box">
+    <div class="oib-icon">🌐</div>
+    <h3>Mở bằng Chrome để tải</h3>
+    <p>Messenger / Zalo không cho tải file.<br>Nhấn ⋮ → <b>"Mở bằng Chrome"</b> rồi tải lại.</p>
+    <button class="btn btn-primary" style="width:100%;margin-top:16px" id="oibCloseBtn">Đã hiểu</button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+    });
+  }
+  let _dPrompt = null;
+  const _banner = document.getElementById('pwaBanner');
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); _dPrompt = e; _banner.hidden = false;
+  });
+  document.getElementById('pwaInstallBtn').addEventListener('click', () => {
+    if (!_dPrompt) return;
+    _dPrompt.prompt();
+    _dPrompt.userChoice.then(() => { _banner.hidden = true; _dPrompt = null; });
+  });
+  document.getElementById('pwaDismissBtn').addEventListener('click', () => { _banner.hidden = true; });
+  window.addEventListener('appinstalled', () => { _banner.hidden = true; _dPrompt = null; });
+</script>
+</body>
+</html>
